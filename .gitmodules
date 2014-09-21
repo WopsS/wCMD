@@ -1,0 +1,3 @@
+[submodule "wCMD/include/SDK"]
+	path = wCMD/include/SDK
+	url = https://github.com/maddinat0r/samp-plugin-sdk
