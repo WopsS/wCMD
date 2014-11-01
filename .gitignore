@@ -1,3 +1,6 @@
+/wCMD/include/boost/
 /bin/
 /wCMD/Debug/
-/wCMD/Release/
+/wCMD/Release
+/SAMP server/*.txt
+/SAMP server/*.exe

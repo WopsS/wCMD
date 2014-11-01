@@ -1,7 +1,7 @@
 #include "main.h"
 
 
-void ProcessingThreadd(AMX* amx, cell* params)
+cell AMX_NATIVE_CALL ProcessingCommand(AMX* amx, cell* params)
 {
 	int Length = NULL;
 	cell *Address = NULL;
@@ -9,26 +9,26 @@ void ProcessingThreadd(AMX* amx, cell* params)
 	amx_GetAddr(amx, params[2], &Address);
 	amx_StrLen(Address, &Length);
 
-	if (Length > 0)
+	if (Length >= 1)
 	{
 		char* GetCommand = new char[++Length];
 		char* GetArguments = new char[Length];
 		//amx_GetString(GetCommand, Address, 0, Length);
 
-		int i;
+		int Index;
 
-		for (i = 0; (i < Length) && (Address[i] != ' '); GetCommand[i] = Address[i++]);
+		for (Index = 0; (Index < Length) && (Address[Index] != ' '); GetCommand[Index] = Address[Index++]);
 
-		GetCommand[i - 1] = '\0';
+		GetCommand[Index - 1] = '\0';
 
-		if (i == Length)
+		if (Index == Length)
 			GetArguments[0] = '\0';
 		else
 		{
-			int j = i;
-			for (i = i + 1; i < Length; GetArguments[i - j - 1] = Address[i++]);
+			int j = Index;
+			for (Index = Index + 1; Index < Length; GetArguments[Index - j - 1] = Address[Index++]);
 
-			GetArguments[i - j - 1] = '\0';
+			GetArguments[Index - j - 1] = '\0';
 		}
 
 		string ReceivedCommand(GetCommand), ReceivedArguments(GetArguments);
@@ -45,36 +45,31 @@ void ProcessingThreadd(AMX* amx, cell* params)
 		}*/
 
 		ReceivedCommand.erase(0, 1).insert(0, "wCMD_");
+		char * string = new char[params[3]];
+		amx_GetAddr(amx, params[3], &Address);
+		amx_SetString(Address, ReceivedCommand.c_str(), 0, 0, params[3]);
 
-		/*switch (params[3])
-		{
-		case Command:
-			return char(ReceivedCommand.c_str());
-			break;
-		case Arguments:
-			return char(ReceivedArguments.c_str());
-			break;
-		case None:
-			logprintf(" * wCMD: There is no option valid.");
-			return 0;
-			break;
-		}*/
+		amx_GetAddr(amx, params[4], &Address);
+		amx_SetString(Address, ReceivedArguments.c_str(), 0, 0, params[4]);
 	}
+
+	return 1;
 }
 
-cell AMX_NATIVE_CALL ProcessingCommand(AMX* amx, cell* params)
-{
-	ThreadGroup.create_thread(bind(ProcessingThreadd, amx, params));
-
-	return 0;
-}
-
-cell AMX_NATIVE_CALL WaitingThreads(AMX* amx, cell* params)
-{
-	ThreadGroup.join_all();
-
-	return 0;
-}
+//cell AMX_NATIVE_CALL ProcessingCommand(AMX* amx, cell* params)
+//{
+//	ThreadGroup.create_thread(bind(ProcessingThreadd, amx, params));
+//	//ProcessingThreadd(amx, params);
+//
+//	return 0;
+//}
+//
+//cell AMX_NATIVE_CALL WaitingThreads(AMX* amx, cell* params)
+//{
+//	ThreadGroup.join_all();
+//
+//	return 0;
+//}
 
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports()
 {
@@ -98,7 +93,7 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 AMX_NATIVE_INFO PluginNatives[] =
 {
 	{ "wCMD", ProcessingCommand },
-	{ "WaitingThreads", WaitingThreads },
+	/*{ "WaitingThreads", WaitingThreads },*/
 	{ 0, 0 }
 };
 

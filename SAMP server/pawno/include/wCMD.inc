@@ -15,15 +15,7 @@
 
 static bool:wCMD_CMDS[2];
 
-enum TypeValue
-{
-	None = 0,
-	Command = 1,
-	Arguments = 2
-};
-
-native wCMD(playerid, cmdtext[], TypeValue:type = None);
-native WaitingThreads();
+native wCMD(playerid, cmdtext[], commandstring[], argumentsstring[]);
 
 #if !defined FAST_wCMD
 
@@ -71,7 +63,16 @@ forward OnPlayerCommandAccepted(playerid, cmdtext[]);
 
 public OnPlayerCommandText(playerid, cmdtext[])
 {
-	wCMD(playerid, cmdtext, Command);
+	if (wCMD_CMDS[0] && !CallLocalFunction("OnPlayerCommandAccepted", "is", playerid, cmdtext))
+		return 1;
+
+	new Command[128], Arguments[128];
+	wCMD(playerid, cmdtext, Command, Arguments);
+
+	if (wCMD_CMDS[1])
+		return CallLocalFunction("OnPlayerCommandExecuted", "isi", playerid, cmdtext, CallLocalFunction(Command, "is", playerid, Arguments));
+
+	return CallLocalFunction(Command, "is", playerid, Arguments);
 }
 
 #if defined _ALS_OnPlayerCommandText
